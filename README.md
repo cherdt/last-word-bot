@@ -11,8 +11,11 @@ In order for the latter to work, the bot needs to follow your account first. The
 Dependencies
 ------------
 
+Last Word Bot is cobbled together from Twidge + Bash + Cron. If you know Bash and Cron, this should be easy.
+
+* Twidge. Twidge may be available in your Debian distro (`apt-get install twidge`), otherwise you can download and install it.
 * Bash.
-* Twidge. Twidge may be available in your Debian distro (apt-get install twidge), otherwise you can download and install it.
+* Cron.
 
 
 Setup
@@ -25,11 +28,11 @@ Setup
 * Enter the code at the twidge prompt
 * Test it: `twidge update "I am a robot!"`
 * Add your canned replies to `replies.txt`. They will be selected at (pseudo)random.
-* Add cron entries as described in CRONTAB.md
+* Add cron entries as described in `CRONTAB.md`
 
 
 Disclaimers
 -----------
 
-* This is not all that well tested. If something doesn't work the way you expected, open an issue or submit a pull request.
-* If this bot starts talking to another bot of the same design, they will probably talk to each other forever. This bot always wants to have the last word.
+* This is not all that well tested. If something doesn't work the way you expected, open an issue or submit a pull request. Who knows, maybe I'll even look at it.
+* If this bot starts talking to another bot of the same design, they will probably talk to each other forever. This bot always wants to have the last word. Maybe this is your shot at immortality. Assuming twitter outlives you. Let's hope not.
