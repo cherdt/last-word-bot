@@ -6,6 +6,13 @@ MYPATH=.
 
 URLREGEX='https://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
 
+debug () {
+    if true
+    then
+        echo "$1"
+    fi
+}
+
 is_authorized () {
     grep ^$SENDER$ $MYPATH/authorized_users
 }
@@ -29,9 +36,10 @@ add_reply_string() {
 delete_reply_string() {
     if is_authorized
     then
+        debug "authorized user"
         # find and remove string from replies
 	TARGET_REPLY=$(echo "$TWEETTEXT" | sed 's/^-[[:space:]]*//')
-	if $(grep $TARGET_REPLY $MYPATH/replies.txt)
+	if $(grep ^$TARGET_REPLY$ $MYPATH/replies.txt)
 	then
 	    sed -i "/$TARGET_REPLY/d" $MYPATH/replies.txt
 	    send_reply "Reply removed: $TARGET_REPLY"
@@ -39,11 +47,13 @@ delete_reply_string() {
             send_reply "I did not find that text in the current list of replies."
         fi
     else
+        debug "user not authorized"
         send_not_authorized
     fi
 }
 
 send_reply() {
+    debug "about to send DM to $SENDER: $1"
     twidge -c $MYPATH/$CONFIG dmsend $SENDER "$1"
 }
 
@@ -77,6 +87,7 @@ then
 # if DM begins with "-" then we are deleting a reply string
 elif [[ $TWEETTEXT =~ ^- ]]
 then
+    debug "detected delete command"
     delete_reply_string
 elif [[ $TWEETTEXT =~ ^HELP ]]
 then
