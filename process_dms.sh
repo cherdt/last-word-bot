@@ -78,7 +78,7 @@ if [[ $TWEETTEXT =~ ^(ON|ENABLE)$ && is_authorized ]]
 then
     rm $MYPATH/.disabled
     send_on_confirmation
-elif [[ $TWEETTEXT =~ ^(OFF|DISABLE)$ is_authorized ]]
+elif [[ $TWEETTEXT =~ ^(OFF|DISABLE)$ && is_authorized ]]
 then
     touch $MYPATH/.disabled
     send_off_confirmation
