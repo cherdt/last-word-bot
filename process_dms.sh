@@ -57,7 +57,7 @@ delete_reply_string() {
 }
 
 send_help_reply() {
-    send_dm_reply "Commands: [ON|OFF|+ text|- text|URL]. See https://github.com/cherdt/last-word-bot"
+    send_dm_reply "Commands: [ON|OFF|SOCIAL|UNSOCIAL|+ text|- text|URL]. See https://github.com/cherdt/last-word-bot"
 }
 
 get_tweet_info() {
@@ -73,6 +73,13 @@ SENDER=$2
 RECIPIENT=$3
 TWEETTEXT=$4
 
+# ignore DMs from unauthorized users, unless in social mode
+if !(is_social || is_authorized)
+then
+    # exit quietly, as the bot owner may want to reply directly
+    exit 0
+fi
+
 # Process commands
 if [[ $TWEETTEXT =~ ^(ON|ENABLE)$ && is_authorized ]]
 then
@@ -82,6 +89,14 @@ elif [[ $TWEETTEXT =~ ^(OFF|DISABLE)$ && is_authorized ]]
 then
     touch $MYPATH/.disabled
     send_off_confirmation
+elif [[ $TWEETTEXT =~ ^(SOCIAL|EXTROVERT|\[>|ALLOW)$ && is_authorized ]]
+then
+    touch $MYPATH/.social
+    send_social_confirmation
+elif [[ $TWEETTEXT =~ ^(UNSOCIAL|INTROVERT|\[<|DENY)$ && is_authorized ]]
+then
+    rm $MYPATH/.social
+    send_unsocial_confirmation
 # if DM begins with "+" then we are adding a reply string
 elif [[ $TWEETTEXT =~ ^\+ ]]
 then
