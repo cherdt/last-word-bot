@@ -29,7 +29,19 @@ Setup
 * Test it: `twidge update "I am a robot!"`
 * Add your canned replies to `replies.txt`. They will be selected at (pseudo)random.
 * Add cron entries as described in `CRONTAB.md`
+* Optionally, add your personal twitter username to `authorized_users`
 
+Commands
+--------
+
+You can interact with a configured bot via twitter direct messages (DMs) using the following commands:
+
+* `(ON|ENABLE)` - re-enables the bot after it's been in an OFF state.
+* `(OFF|DISABLE)` - disables the bot. You can still add and remove replies while the bot is in an OFF state.
+* `+reply text` - adds reply text to the list of random replies
+* `-reply text` - removes reply text from the list of random replies. Note that the text must be an exact match!
+* `url` - the bot will try to follow the t.co link and add a random reply
+* `HELP` - lists commands, links to this page
 
 Disclaimers
 -----------
