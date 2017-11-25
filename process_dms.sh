@@ -6,8 +6,23 @@ MYPATH=.
 
 URLREGEX='https://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
 
+debug () {
+    if false 
+    then
+        echo "$1"
+    fi
+}
+
 is_authorized () {
     grep ^$SENDER$ $MYPATH/authorized_users
+}
+
+is_existing_reply () {
+    grep "^$1$" $MYPATH/replies.txt
+}
+
+send_not_authorized() {
+    send_reply "I'm sorry Dave, I'm afraid I can't do that."
 }
 
 add_reply_string() {
@@ -18,7 +33,24 @@ add_reply_string() {
         echo "$NEW_REPLY" >> $MYPATH/replies.txt
         send_reply "New reply added: $NEW_REPLY"
     else
-        send_reply "I'm sorry Dave, I'm afraid I can't do that."
+        send_not_authorized
+    fi
+}
+
+delete_reply_string() {
+    if is_authorized
+    then
+        # find and remove string from replies
+	TARGET_REPLY=$(echo "$TWEETTEXT" | sed 's/^-[[:space:]]*//')
+	if is_existing_reply "$TARGET_REPLY"
+	then
+	    sed -i "/$TARGET_REPLY/d" $MYPATH/replies.txt
+	    send_reply "Reply removed: $TARGET_REPLY"
+	else
+            send_reply "I did not find that text in the current list of replies."
+        fi
+    else
+        send_not_authorized
     fi
 }
 
@@ -53,7 +85,10 @@ TWEETTEXT=$4
 if [[ $TWEETTEXT =~ ^\+ ]]
 then
     add_reply_string 
-# test for HELP command
+# if DM begins with "-" then we are deleting a reply string
+elif [[ $TWEETTEXT =~ ^- ]]
+then
+    delete_reply_string
 elif [[ $TWEETTEXT =~ ^HELP ]]
 then
     send_help_reply
