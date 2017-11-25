@@ -6,6 +6,8 @@ MYPATH=.
 
 URLREGEX='https://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
 
+source $MYPATH/shared.sh
+
 debug () {
     if false 
     then
@@ -81,8 +83,15 @@ RECIPIENT=$3
 TWEETTEXT=$4
 
 # Process command
+
+if [[ $TWEETTEXT =~ ^(ON|ENABLE)$ ]]
+then
+    rm $MYPATH/.disabled
+elif [[ $TWEETTEXT =~ ^(OFF|DISABLE)$ ]]
+then
+    touch $MYPATH/.disabled
 # if DM begins with "+" then we are adding a reply string
-if [[ $TWEETTEXT =~ ^\+ ]]
+elif [[ $TWEETTEXT =~ ^\+ ]]
 then
     add_reply_string 
 # if DM begins with "-" then we are deleting a reply string
@@ -95,16 +104,22 @@ then
 # check for URL, likely a shortened twitter link
 elif [[ $TWEETTEXT =~ $URLREGEX ]]
 then
-    get_tweet_info $TWEETTEXT
+    if is_enabled
+    then
+	get_tweet_info $TWEETTEXT
+    
+        # write and entry to the message log
+        logger "Replying to $TARGETUSER with a random reply"
+    
+        # get random reply
+        get_random_reply
+    
+        # Reply to the message referenced by the DM
+        twidge -c $MYPATH/$CONFIG update --inreplyto $TWEETID "@$TARGETUSER $REPLY"
+    else
+        send_reply "I'm currently turned off. To turn me back on, an authorized user needs to send an ON command."
+    fi
 
-    # write and entry to the message log
-    logger "Replying to $TARGETUSER with a random reply"
-
-    # get random reply
-    get_random_reply
-
-    # Reply to the message referenced by the DM
-    twidge -c $MYPATH/$CONFIG update --inreplyto $TWEETID "@$TARGETUSER $REPLY"
 # otherwise, we didn't understand the command
 else
     logger "Failed to parse DM: $TWEETTEXT"
