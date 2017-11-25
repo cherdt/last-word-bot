@@ -17,6 +17,10 @@ is_authorized () {
     grep ^$SENDER$ $MYPATH/authorized_users
 }
 
+is_existing_reply () {
+    grep "^$1$" $MYPATH/replies.txt
+}
+
 send_not_authorized() {
     send_reply "I'm sorry Dave, I'm afraid I can't do that."
 }
@@ -39,7 +43,7 @@ delete_reply_string() {
         debug "authorized user"
         # find and remove string from replies
 	TARGET_REPLY=$(echo "$TWEETTEXT" | sed 's/^-[[:space:]]*//')
-	if $(grep ^$TARGET_REPLY$ $MYPATH/replies.txt)
+	if is_existing_reply $TARGET_REPLY
 	then
 	    sed -i "/$TARGET_REPLY/d" $MYPATH/replies.txt
 	    send_reply "Reply removed: $TARGET_REPLY"
