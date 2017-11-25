@@ -12,8 +12,7 @@ USERNAME=$2
 
 if is_enabled
 then
-    # Pick one reply at random
-    REPLY=$(shuf -n 1 $MYPATH/replies.txt)
+    get_random_reply
 
     # Reply to the tweet
     twidge -c $CONFIG update --inreplyto $MESSAGEID "@$USERNAME $REPLY" 
