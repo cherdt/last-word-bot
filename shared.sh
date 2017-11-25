@@ -23,5 +23,5 @@ send_off_confirmation () {
 }
 
 send_on_confirmation () {
-    send_dm_reply "I am now ON. An authorized user can turn me off by sending the ON command"
+    send_dm_reply "I am now ON. An authorized user can turn me off by sending the OFF command"
 }
