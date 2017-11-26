@@ -41,7 +41,7 @@ Authorized users can interact with a configured bot via twitter direct messages 
 * `(SOCIAL|EXTROVERT|ALLOW|[>)` - puts the bot in SOCIAL mode, in which it will reply to tweets sent via Direct Message by any follower.
 * `(UNSOCIAL|INTROVERT|DENY|[<)` - puts the bot in the default UNSOCIAL mode, in which it will reply to tweets sent via Direct Message by authorized users only.
 * `(AUTH|+@) username1 username2 ...` - add authorized users.
-* `(DEATH|-@) username1 username2 ...` - remove authorized users.
+* `(DEAUTH|-@) username1 username2 ...` - remove authorized users.
 * `+reply text` - adds reply text to the list of random replies.
 * `-reply text` - removes reply text from the list of random replies. Note that the text must be an exact match!
 * `url` - the bot will try to follow the t.co link and add a random reply.
