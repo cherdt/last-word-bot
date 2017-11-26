@@ -15,10 +15,6 @@ debug () {
     fi
 }
 
-is_authorized () {
-    grep ^$SENDER$ $MYPATH/authorized_users
-}
-
 is_existing_reply () {
     grep "^$1$" $MYPATH/replies.txt
 }
@@ -46,7 +42,7 @@ delete_reply_string() {
 	TARGET_REPLY=$(echo "$TWEETTEXT" | sed 's/^-[[:space:]]*//')
 	if is_existing_reply "$TARGET_REPLY"
 	then
-	    sed -i "/$TARGET_REPLY/d" $MYPATH/replies.txt
+	    sed -i "/^$TARGET_REPLY$/d" $MYPATH/replies.txt
 	    send_dm_reply "Reply removed: $TARGET_REPLY"
 	else
             send_dm_reply "I did not find that text in the current list of replies."
@@ -54,10 +50,6 @@ delete_reply_string() {
     else
         send_not_authorized
     fi
-}
-
-send_help_reply() {
-    send_dm_reply "Commands: [ON|OFF|SOCIAL|UNSOCIAL|+ text|- text|URL]. See https://github.com/cherdt/last-word-bot"
 }
 
 get_tweet_info() {
@@ -85,6 +77,12 @@ if [[ $TWEETTEXT =~ ^(ON|ENABLE)$ && is_authorized ]]
 then
     rm $MYPATH/.disabled
     send_on_confirmation
+elif [[ $TWEETTEXT =~ ^(AUTH|\+@) && is_authorized ]]
+then
+    add_authorized_users "$TWEETTEXT"
+elif [[ $TWEETTEXT =~ ^(DEAUTH|-@) && is_authorized ]]
+then
+    delete_authorized_users "$TWEETTEXT"
 elif [[ $TWEETTEXT =~ ^(OFF|DISABLE)$ && is_authorized ]]
 then
     touch $MYPATH/.disabled

@@ -29,17 +29,19 @@ Setup
 * Test it: `twidge update "I am a robot!"`
 * Add your canned replies to `replies.txt`. They will be selected at (pseudo)random.
 * Add cron entries as described in `CRONTAB.md`
-* Optionally, add your personal twitter username to `authorized_users`
+* Optionally, add the bot's username and/or your personal twitter username to `authorized_users`
 
 Commands
 --------
 
-You can interact with a configured bot via twitter direct messages (DMs) using the following commands:
+Authorized users can interact with a configured bot via twitter direct messages (DMs) using the following commands:
 
 * `(ON|ENABLE)` - re-enables the bot after it's been in an OFF state.
 * `(OFF|DISABLE)` - disables the bot. You can still add and remove replies while the bot is in an OFF state.
 * `(SOCIAL|EXTROVERT|ALLOW|[>)` - puts the bot in SOCIAL mode, in which it will reply to tweets sent via Direct Message by any follower.
 * `(UNSOCIAL|INTROVERT|DENY|[<)` - puts the bot in the default UNSOCIAL mode, in which it will reply to tweets sent via Direct Message by authorized users only.
+* `(AUTH|+@) username1 username2 ...` - add authorized users.
+* `(DEATH|-@) username1 username2 ...` - remove authorized users.
 * `+reply text` - adds reply text to the list of random replies.
 * `-reply text` - removes reply text from the list of random replies. Note that the text must be an exact match!
 * `url` - the bot will try to follow the t.co link and add a random reply.
