@@ -6,13 +6,20 @@
 # grep wants to us to escape the curly braces, but not here
 USERNAME_REGEX='^[A-Za-z0-9_]{1,15}$'
 
+# DEFAULT replies
+DEFAULT=replies.txt
+
 is_line_in_file () {
     fgrep -i -x "$1" $2
 }
 
+does_rule_match_tweet () {
+    fgrep -i --word-regexp --file=$MYPATH/match/$1 <(echo $2)
+}
+
 get_random_reply () {
     # pick 1 reply at random
-    REPLY=$(shuf -n 1 $MYPATH/replies.txt)
+    REPLY=$(shuf -n 1 ${1-$DEFAULT})
 }
 
 is_enabled () {
