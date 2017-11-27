@@ -120,3 +120,113 @@ delete_authorized_user () {
         send_not_authorized
     fi
 }
+
+# add a single match keyword to a match rule file
+add_match_to_rule () {
+}
+
+# add match keywords to a specified rule
+add_rule_match () {
+}
+
+# remove a single match keyword from a match rule file
+delete_match_from_rule () {
+}
+
+# remove match keywords for a specified rule
+delete_rule_match () {
+}
+
+# returns true (0) if the specified reply already exists in the rule file
+is_existing_reply () {
+}
+
+# does the command include a reply rule
+is_reply_rule_specified () {
+}
+
+# adds the specified reply string to a replies file
+add_reply_string () {
+}
+
+# get the rule name from a command
+get_rule_name () {
+}
+
+# get the rule path based on the rule name
+get_rule_path () {
+}
+
+# get the rule text from a command
+get_reply_text () {
+}
+
+# delete the specified reply string from a replies file
+delete_reply_string () {
+}
+
+# Process command
+process_command () {
+    if [[ $1 =~ ^(ON|ENABLE)$ && is_authorized ]]
+    then
+        rm $MYPATH/.disabled
+        send_on_confirmation
+    elif [[ $1 =~ ^(AUTH|\+@) && is_authorized ]]
+    then
+        add_authorized_users "$1"
+    elif [[ $1 =~ ^(DEAUTH|-@) && is_authorized ]]
+    then
+        delete_authorized_users "$1"
+    elif [[ $1 =~ ^(OFF|DISABLE)$ && is_authorized ]]
+    then
+        touch $MYPATH/.disabled
+        send_off_confirmation
+    elif [[ $1 =~ ^(SOCIAL|EXTROVERT|\[>|ALLOW)$ && is_authorized ]]
+    then
+        touch $MYPATH/.social
+        send_social_confirmation
+    elif [[ $1 =~ ^(UNSOCIAL|INTROVERT|\[<|DENY)$ && is_authorized ]]
+    then
+        rm $MYPATH/.social
+        send_unsocial_confirmation
+    # if DM begins with LIST then we are listing match rules
+    elif [[ $1 =~ ^LIST ]]
+    then
+        send_rules_list
+    # if DM begins with "+" then we are adding a reply string
+    elif [[ $1 =~ ^\+ ]]
+    then
+        add_reply_string $1
+    # if DM begins with "-" then we are deleting a reply string
+    elif [[ $1 =~ ^- ]]
+    then
+        delete_reply_string $1
+    elif [[ $1 =~ ^HELP ]]
+    then
+        send_help_reply
+    # check for URL, likely a shortened twitter link
+    elif [[ $1 =~ $URLREGEX ]]
+    then
+        if is_enabled
+        then
+            get_tweet_info $1
+    
+            # write and entry to the message log
+            logger "Replying to $TARGETUSER with a random reply"
+    
+            # get random reply
+            get_random_reply
+    
+            # Reply to the message referenced by the DM
+            twidge -c $MYPATH/$CONFIG update --inreplyto $TWEETID "@$TARGETUSER $REPLY"
+        else
+            send_dm_reply "I'm currently turned off. To turn me back on, an authorized user needs to send an ON command."
+        fi
+    
+    # otherwise, we didn't understand the command
+    else
+        logger "Failed to parse DM: $1"
+        send_dm_reply "Sorry, I didn't undertand that. Try HELP"
+    fi
+}
+
