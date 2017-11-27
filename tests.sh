@@ -17,30 +17,20 @@ is_authorized () {
     true
 }
 
-
-process_command () {
-
-if [[ $1 =~ ^[\+-]?~[0-9a-zA-Z]+\ [0-9a-zA-Z|#\ ]+$ ]]
+# test extracting reply text from a command
+TESTNAME="extract reply text from a command"
+EXPECTED="sample reply text"
+TESTVAL1=$(get_reply_text "+ sample reply text")
+TESTVAL2=$(get_reply_text "- sample reply text")
+TESTVAL3=$(get_reply_text "+10example sample reply text")
+TESTVAL4=$(get_reply_text "-10example sample reply text")
+if [[ "$EXPECTED" = "$TESTVAL1" && "$EXPECTED" = "$TESTVAL2" && "$EXPECTED" = "$TESTVAL3" && "$EXPECTED" = "$TESTVAL4" ]] 
 then
-    if [[ $1 =~ ^-~ ]]
-    then
-        echo "delete match"
-        delete_rule_match $1
-    else
-        echo "add match"
-        add_rule_match $1
-    fi
-elif [[ $1 =~ ^\+ ]]
-then
-    add_reply_string "$1"
-elif [[ $1 =~ ^- ]]
-then
-    delete_reply_string "$1"
-elif [[ $1 =~ ^LIST ]]
-then
-    send_rules_list
+    echo "PASS: $TESTNAME"
+else
+    echo "FAIL: $TESTNAME"
 fi
-}
+
 
 # test adding match to example rule
 TESTNAME="adding match to example rule"

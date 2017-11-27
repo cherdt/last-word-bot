@@ -123,46 +123,57 @@ delete_authorized_user () {
 
 # add a single match keyword to a match rule file
 add_match_to_rule () {
+    echo "stub"
 }
 
 # add match keywords to a specified rule
 add_rule_match () {
+    echo "stub"
 }
 
 # remove a single match keyword from a match rule file
 delete_match_from_rule () {
+    echo "stub"
 }
 
 # remove match keywords for a specified rule
 delete_rule_match () {
+    echo "stub"
 }
 
 # returns true (0) if the specified reply already exists in the rule file
 is_existing_reply () {
+    echo "stub"
 }
 
 # does the command include a reply rule
 is_reply_rule_specified () {
+    echo "stub"
 }
 
 # adds the specified reply string to a replies file
 add_reply_string () {
+    echo "stub"
 }
 
 # get the rule name from a command
 get_rule_name () {
+    echo "stub"
 }
 
 # get the rule path based on the rule name
 get_rule_path () {
+    echo "stub"
 }
 
 # get the rule text from a command
 get_reply_text () {
+    echo $1 | cut -d' ' -f 2-
 }
 
 # delete the specified reply string from a replies file
 delete_reply_string () {
+    echo "stub"
 }
 
 # Process command
@@ -190,15 +201,15 @@ process_command () {
         rm $MYPATH/.social
         send_unsocial_confirmation
     # if DM begins with LIST then we are listing match rules
-    elif [[ $1 =~ ^LIST ]]
+    elif [[ $1 =~ ^LIST && is_authorized ]]
     then
         send_rules_list
     # if DM begins with "+" then we are adding a reply string
-    elif [[ $1 =~ ^\+ ]]
+    elif [[ $1 =~ ^\+ && is_authorized ]]
     then
         add_reply_string $1
     # if DM begins with "-" then we are deleting a reply string
-    elif [[ $1 =~ ^- ]]
+    elif [[ $1 =~ ^- && is_authorized ]]
     then
         delete_reply_string $1
     elif [[ $1 =~ ^HELP ]]
