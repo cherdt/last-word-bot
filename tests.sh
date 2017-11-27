@@ -17,6 +17,39 @@ is_authorized () {
     true
 }
 
+# test reply rule detection
+TESTNAME="detect reply rule presence"
+TESTVAL1="+ No reply rule here"
+TESTVAL2="- No reply rule here"
+TESTVAL3="+sample Yes here is a reply rule"
+TESTVAL4="-sample Yes here is a reply rule"
+if ! is_reply_rule_specified $TESTVAL1 && \
+   ! is_reply_rule_specified $TESTVAL2 && \
+   is_reply_rule_specified $TESTVAL3 && \
+   is_reply_rule_specified $TESTVAL4
+then
+   echo "PASS: $TESTNAME"
+else
+   echo "FAIL: $TESTNAME"
+fi
+    
+ 
+# test extracting rule name from a command
+TESTNAME="extract rule name from a command"
+EXPECTED1="99sample"
+EXPECTED2="default replies"
+TESTVAL1=$(get_rule_name "+99sample sample reply text")
+TESTVAL2=$(get_rule_name "-99sample sample reply text")
+TESTVAL3=$(get_rule_name "+ sample reply text")
+TESTVAL4=$(get_rule_name "- sample reply text")
+if [[ "$EXPECTED1" = "$TESTVAL1" && "$EXPECTED1" = "$TESTVAL2" && "$EXPECTED2" = "$TESTVAL3" && "$EXPECTED2" = "$TESTVAL4" ]]
+then
+    echo "PASS: $TESTNAME"
+else
+    echo "FAIL: $TESTNAME"
+fi
+
+
 # test extracting reply text from a command
 TESTNAME="extract reply text from a command"
 EXPECTED="sample reply text"

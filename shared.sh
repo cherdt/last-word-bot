@@ -148,7 +148,7 @@ is_existing_reply () {
 
 # does the command include a reply rule
 is_reply_rule_specified () {
-    echo "stub"
+    echo $1 | grep --quiet ^[+-][0-9a-zA-Z]
 }
 
 # adds the specified reply string to a replies file
@@ -158,7 +158,12 @@ add_reply_string () {
 
 # get the rule name from a command
 get_rule_name () {
-    echo "stub"
+    if is_reply_rule_specified $1
+    then
+        echo $1 | cut -d' ' -f 1 | sed 's/^[\+-]//'
+    else
+        echo "default replies"
+    fi
 }
 
 # get the rule path based on the rule name
@@ -166,13 +171,18 @@ get_rule_path () {
     echo "stub"
 }
 
-# get the rule text from a command
+# get the reply text from a command
 get_reply_text () {
     echo $1 | cut -d' ' -f 2-
 }
 
 # delete the specified reply string from a replies file
 delete_reply_string () {
+    echo "stub"
+}
+
+# send list of rule names
+send_rules_list () {
     echo "stub"
 }
 
