@@ -9,46 +9,9 @@ URLREGEX='https://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
 source $MYPATH/shared.sh
 
 debug () {
-    if false 
+    if false
     then
         echo "$1"
-    fi
-}
-
-is_existing_reply () {
-    grep "^$1$" $MYPATH/replies.txt
-}
-
-send_not_authorized() {
-    send_dm_reply "I'm sorry Dave, I'm afraid I can't do that."
-}
-
-add_reply_string() {
-    if is_authorized
-    then
-        # append string to replies
-        NEW_REPLY=$(echo "$TWEETTEXT" | sed -e 's/^\+[[:space:]]*//')
-        echo "$NEW_REPLY" >> $MYPATH/replies.txt
-        send_dm_reply "New reply added: $NEW_REPLY"
-    else
-        send_not_authorized
-    fi
-}
-
-delete_reply_string() {
-    if is_authorized
-    then
-        # find and remove string from replies
-	TARGET_REPLY=$(echo "$TWEETTEXT" | sed 's/^-[[:space:]]*//')
-	if is_existing_reply "$TARGET_REPLY"
-	then
-	    sed -i "/^$TARGET_REPLY$/d" $MYPATH/replies.txt
-	    send_dm_reply "Reply removed: $TARGET_REPLY"
-	else
-            send_dm_reply "I did not find that text in the current list of replies."
-        fi
-    else
-        send_not_authorized
     fi
 }
 
@@ -95,14 +58,18 @@ elif [[ $TWEETTEXT =~ ^(UNSOCIAL|INTROVERT|\[<|DENY)$ && is_authorized ]]
 then
     rm $MYPATH/.social
     send_unsocial_confirmation
+# if DM begins with LIST then we are listing match rules
+elif [[ $TWEETTEXT =~ ^LIST ]]
+then
+    send_rules_list
 # if DM begins with "+" then we are adding a reply string
 elif [[ $TWEETTEXT =~ ^\+ ]]
 then
-    add_reply_string 
+    add_reply_string $TWEETTEXT
 # if DM begins with "-" then we are deleting a reply string
 elif [[ $TWEETTEXT =~ ^- ]]
 then
-    delete_reply_string
+    delete_reply_string $TWEETTEXT
 elif [[ $TWEETTEXT =~ ^HELP ]]
 then
     send_help_reply
@@ -111,14 +78,14 @@ elif [[ $TWEETTEXT =~ $URLREGEX ]]
 then
     if is_enabled
     then
-	get_tweet_info $TWEETTEXT
-    
+        get_tweet_info $TWEETTEXT
+
         # write and entry to the message log
         logger "Replying to $TARGETUSER with a random reply"
-    
+
         # get random reply
         get_random_reply
-    
+
         # Reply to the message referenced by the DM
         twidge -c $MYPATH/$CONFIG update --inreplyto $TWEETID "@$TARGETUSER $REPLY"
     else
@@ -128,7 +95,8 @@ then
 # otherwise, we didn't understand the command
 else
     logger "Failed to parse DM: $TWEETTEXT"
-    send_dm_reply "Sorry, I didn't undertand that. Try HELP" 
+    send_dm_reply "Sorry, I didn't undertand that. Try HELP"
 fi
 
 exit 0
+
