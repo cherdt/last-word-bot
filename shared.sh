@@ -130,38 +130,44 @@ is_valid_match_rule () {
     echo $1 | grep --quiet "^[-+~]~\?[0-9a-zA-Z]\+[[:space:]]\+.\+"
 }
 
+# TODO refactor rename add_line_to_file?
 # add a single match keyword to a match rule file
 add_match_to_rule () {
+    # TODO make sure it's not already present
     echo $1 >> $2
 }
 
-# add match keywords to a specified rule
-add_rule_match () {
-    echo "stub: add_rule_match"
+
+# process match rules (add match strings to, remove match strings from, a rule)
+process_match_rule () {
     if is_valid_match_rule "$1"
     then
         RULENAME=$(get_rule_name "$1")
-        RULEPATH=$(get_rule_name "$1")
-        shift
+        RULEPATH=$(get_rule_path "$1")
 
-        echo "Rulename: $RULENAME"
-        echo "Rulepath: $RULEPATH"
-        echo "Keywords: $1"
-    
-        for KEYWORD in $1
+        # TODO name this function? 
+        process () {
+            if [[ $1 =~ ^\+?~ ]]
+            then
+                add_match_to_rule "$2" "$3"
+            else 
+                delete_match_from_rule "$2" "$3"
+            fi
+        }
+
+        for KEYWORD in $(get_reply_text "$1")
         do
-            echo "adding $KEYWORD to $RULEPATH"
-            add_match_to_rule $KEYWORD $RULEPATH
+            process "$1" "$KEYWORD" "$RULEPATH"
         done
     else
-        echo "it wasn't a valid rule?"
-        send_syntax_error 
+        send_syntax_error
     fi
 }
 
+# TODO refactor rename delete_line_from_file?
 # remove a single match keyword from a match rule file
 delete_match_from_rule () {
-    echo "stub"
+    sed -i "/^$1$/Id" $2
 }
 
 # remove match keywords for a specified rule
@@ -187,7 +193,7 @@ add_reply_string () {
 
 # get the rule name from a command
 get_rule_name () {
-    if is_reply_rule_specified $1
+    if is_reply_rule_specified "$1"
     then
         # rules are preceded by +, -, ~, +~, or -~
         echo "$1" | cut -d' ' -f 1 | sed 's/^[-\+~]~\?//'
@@ -197,8 +203,15 @@ get_rule_name () {
 }
 
 # get the rule path based on the rule name
+# TODO different paths for matches and replies
 get_rule_path () {
-    echo "stub"
+    RULENAME=$(get_rule_name "$1")
+    if [ "$RULENAME" = "default replies" ]
+    then
+        echo "$MYPATH/$DEFAULT"
+    else
+        echo "$MYPATH/match/$RULENAME"
+    fi
 }
 
 # get the reply text from a command
@@ -213,20 +226,7 @@ delete_reply_string () {
 
 # send list of rule names
 send_rules_list () {
-    echo "stub"
-}
-
-# process match rule
-process_match_rule () {
-    if [[ $1 =~ ^\+?~ ]]
-    then
-        add_rule_match "$1"
-    elif [[ $1 =~ ^-~ ]]
-    then
-        delete_rule_match "$1"
-    else
-        send_syntax_error
-    fi
+    send_dm_reply $(ls $MYPATH/match/)
 }
 
 # Process command
