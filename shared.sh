@@ -128,8 +128,7 @@ is_valid_match_rule () {
 
 # add a single match keyword to a match rule file
 add_match_to_rule () {
-    #echo $1 >> $2
-    echo "stub"
+    echo $1 >> $2
 }
 
 # add match keywords to a specified rule
@@ -139,8 +138,9 @@ add_rule_match () {
     then
         RULENAME=$(get_rule_name "$1")
         RULEPATH=$(get_rule_name "$1")
+        shift
     
-        for KEYWORD in $(getsubject_stub) 
+        for KEYWORD in $2
         do
             add_match_to_rule $KEYWORD $RULEPATH
         done
@@ -179,7 +179,7 @@ get_rule_name () {
     if is_reply_rule_specified $1
     then
         # rules are preceded by +, -, ~, +~, or -~
-        echo $1 | cut -d' ' -f 1 | sed 's/^[\+-~]~\?//'
+        echo $1 | cut -d' ' -f 1 | sed 's/^[-\+~]~\?//'
     else
         echo "default replies"
     fi
