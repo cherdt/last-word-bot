@@ -121,14 +121,32 @@ delete_authorized_user () {
     fi
 }
 
+# test a command to see if it is a valid match rule
+is_valid_match_rule () {
+    echo $1 | grep --quiet "^[-+~]~\?[0-9a-zA-Z]\+[[:space:]]\+.\+"
+}
+
 # add a single match keyword to a match rule file
 add_match_to_rule () {
+    #echo $1 >> $2
     echo "stub"
 }
 
 # add match keywords to a specified rule
 add_rule_match () {
     echo "stub"
+    if is_valid_match_rule "$1"
+    then
+        RULENAME=$(get_rule_name "$1")
+        RULEPATH=$(get_rule_name "$1")
+    
+        for KEYWORD in $(getsubject_stub) 
+        do
+            add_match_to_rule $KEYWORD $RULEPATH
+        done
+    else
+        send_dm_reply "Syntax error"
+    fi
 }
 
 # remove a single match keyword from a match rule file
@@ -160,7 +178,8 @@ add_reply_string () {
 get_rule_name () {
     if is_reply_rule_specified $1
     then
-        echo $1 | cut -d' ' -f 1 | sed 's/^[\+-]//'
+        # rules are preceded by +, -, ~, +~, or -~
+        echo $1 | cut -d' ' -f 1 | sed 's/^[\+-~]~\?//'
     else
         echo "default replies"
     fi

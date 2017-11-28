@@ -17,6 +17,24 @@ is_authorized () {
     true
 }
 
+
+# test is valid match rule 
+TESTNAME="is valid match rule"
+TESTVAL1="~10example sample template exhibit" 
+TESTVAL2="+~10example sample template exhibit"
+TESTVAL3="-~10example sample template exhibit"
+TESTVAL4="+~ wrong wrong wrong"
+if is_valid_match_rule "$TESTVAL1" && \
+   is_valid_match_rule "$TESTVAL2" && \
+   is_valid_match_rule "$TESTVAL3" && \
+   ! is_valid_match_rule "$TESTVAL4"
+then
+   echo "PASS: $TESTNAME"
+else
+   echo "FAIL: $TESTNAME"
+fi
+
+
 # test reply rule detection
 TESTNAME="detect reply rule presence"
 TESTVAL1="+ No reply rule here"
