@@ -41,10 +41,16 @@ TESTVAL1="+ No reply rule here"
 TESTVAL2="- No reply rule here"
 TESTVAL3="+sample Yes here is a reply rule"
 TESTVAL4="-sample Yes here is a reply rule"
+TESTVAL5="~sample Yes here is a match rule"
+TESTVAL6="+~sample Yes here is a match rule"
+TESTVAL7="-~sample Yes here is a match rule"
 if ! is_reply_rule_specified $TESTVAL1 && \
    ! is_reply_rule_specified $TESTVAL2 && \
    is_reply_rule_specified $TESTVAL3 && \
-   is_reply_rule_specified $TESTVAL4
+   is_reply_rule_specified $TESTVAL4 && \
+   is_reply_rule_specified $TESTVAL5 && \
+   is_reply_rule_specified $TESTVAL6 && \
+   is_reply_rule_specified $TESTVAL7
 then
    echo "PASS: $TESTNAME"
 else
@@ -58,9 +64,18 @@ EXPECTED1="99sample"
 EXPECTED2="default replies"
 TESTVAL1=$(get_rule_name "+99sample sample reply text")
 TESTVAL2=$(get_rule_name "-99sample sample reply text")
-TESTVAL3=$(get_rule_name "+ sample reply text")
-TESTVAL4=$(get_rule_name "- sample reply text")
-if [[ "$EXPECTED1" = "$TESTVAL1" && "$EXPECTED1" = "$TESTVAL2" && "$EXPECTED2" = "$TESTVAL3" && "$EXPECTED2" = "$TESTVAL4" ]]
+TESTVAL3=$(get_rule_name "+~99sample sample example demo")
+TESTVAL4=$(get_rule_name "~99sample sample example demo")
+TESTVAL5=$(get_rule_name "-~99sample sample example demo")
+TESTVAL6=$(get_rule_name "+ sample reply text")
+TESTVAL7=$(get_rule_name "- sample reply text")
+if [[ "$EXPECTED1" = "$TESTVAL1" && \
+      "$EXPECTED1" = "$TESTVAL2" && \
+      "$EXPECTED1" = "$TESTVAL3" && \
+      "$EXPECTED1" = "$TESTVAL4" && \
+      "$EXPECTED1" = "$TESTVAL5" && \
+      "$EXPECTED2" = "$TESTVAL6" && \
+      "$EXPECTED2" = "$TESTVAL7" ]]
 then
     echo "PASS: $TESTNAME"
 else

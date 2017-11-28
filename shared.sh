@@ -66,6 +66,10 @@ send_unsocial_confirmation () {
     send_dm_reply "I am now in UNSOCIAL mode and will respond to tweets DM'd from authorized users only. Try SOCIAL to change modes"
 }
 
+send_syntax_error () {
+    send_dm_reply "Sorry, I didn't undertand that. Try HELP"
+}
+
 is_authorized () {
     grep --quiet ^$SENDER$ $MYPATH/authorized_users
 }
@@ -133,19 +137,25 @@ add_match_to_rule () {
 
 # add match keywords to a specified rule
 add_rule_match () {
-    echo "stub"
+    echo "stub: add_rule_match"
     if is_valid_match_rule "$1"
     then
         RULENAME=$(get_rule_name "$1")
         RULEPATH=$(get_rule_name "$1")
         shift
+
+        echo "Rulename: $RULENAME"
+        echo "Rulepath: $RULEPATH"
+        echo "Keywords: $1"
     
-        for KEYWORD in $2
+        for KEYWORD in $1
         do
+            echo "adding $KEYWORD to $RULEPATH"
             add_match_to_rule $KEYWORD $RULEPATH
         done
     else
-        send_dm_reply "Syntax error"
+        echo "it wasn't a valid rule?"
+        send_syntax_error 
     fi
 }
 
@@ -165,8 +175,9 @@ is_existing_reply () {
 }
 
 # does the command include a reply rule
+# TODO this is poorly named, rules can apply to matches and replies
 is_reply_rule_specified () {
-    echo $1 | grep --quiet ^[+-][0-9a-zA-Z]
+    echo "$1" | grep --quiet "^[-+~]~\?[0-9a-zA-Z]"
 }
 
 # adds the specified reply string to a replies file
@@ -179,7 +190,7 @@ get_rule_name () {
     if is_reply_rule_specified $1
     then
         # rules are preceded by +, -, ~, +~, or -~
-        echo $1 | cut -d' ' -f 1 | sed 's/^[-\+~]~\?//'
+        echo "$1" | cut -d' ' -f 1 | sed 's/^[-\+~]~\?//'
     else
         echo "default replies"
     fi
@@ -203,6 +214,19 @@ delete_reply_string () {
 # send list of rule names
 send_rules_list () {
     echo "stub"
+}
+
+# process match rule
+process_match_rule () {
+    if [[ $1 =~ ^\+?~ ]]
+    then
+        add_rule_match "$1"
+    elif [[ $1 =~ ^-~ ]]
+    then
+        delete_rule_match "$1"
+    else
+        send_syntax_error
+    fi
 }
 
 # Process command
@@ -233,14 +257,18 @@ process_command () {
     elif [[ $1 =~ ^LIST && is_authorized ]]
     then
         send_rules_list
+    # if DM begins with "+~, -~, or ~" then we are modifying a match rule 
+    elif [[ $1 =~ ^[-~\+]~? && is_authorized ]]
+    then
+        process_match_rule "$1"
     # if DM begins with "+" then we are adding a reply string
     elif [[ $1 =~ ^\+ && is_authorized ]]
     then
-        add_reply_string $1
+        add_reply_string "$1"
     # if DM begins with "-" then we are deleting a reply string
     elif [[ $1 =~ ^- && is_authorized ]]
     then
-        delete_reply_string $1
+        delete_reply_string "$1"
     elif [[ $1 =~ ^HELP ]]
     then
         send_help_reply
@@ -249,7 +277,7 @@ process_command () {
     then
         if is_enabled
         then
-            get_tweet_info $1
+            get_tweet_info "$1"
     
             # write and entry to the message log
             logger "Replying to $TARGETUSER with a random reply"
@@ -266,7 +294,7 @@ process_command () {
     # otherwise, we didn't understand the command
     else
         logger "Failed to parse DM: $1"
-        send_dm_reply "Sorry, I didn't undertand that. Try HELP"
+        send_syntax_error
     fi
 }
 
