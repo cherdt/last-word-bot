@@ -130,11 +130,13 @@ is_valid_match_rule () {
     echo $1 | grep --quiet "^[-+~]~\?[0-9a-zA-Z]\+[[:space:]]\+.\+"
 }
 
-# TODO refactor rename add_line_to_file?
-# add a single match keyword to a match rule file
-add_match_to_rule () {
-    # TODO make sure it's not already present
-    echo $1 >> $2
+# append the specified line to the specified file 
+add_line_to_file () {
+    # Add the line only if it is not already present
+    if $(grep -i "^$1$" "$2")
+    then
+        echo "$1" >> $2
+    fi
 }
 
 
@@ -145,16 +147,17 @@ process_match_rule () {
         RULENAME=$(get_rule_name "$1")
         RULEPATH=$(get_rule_path "$1")
 
-        # TODO name this function? 
+        # TODO rename this function? 
         process () {
-            if [[ $1 =~ ^\+?~ ]]
+            if [[ $1 =~ ^-~? ]]
             then
-                add_match_to_rule "$2" "$3"
-            else 
-                delete_match_from_rule "$2" "$3"
+                delete_line_from_file "$2" "$3"
+            else
+                add_line_to_file "$2" "$3"
             fi
         }
 
+        # TODO only match keywords get added like this
         for KEYWORD in $(get_reply_text "$1")
         do
             process "$1" "$KEYWORD" "$RULEPATH"
@@ -164,9 +167,9 @@ process_match_rule () {
     fi
 }
 
-# TODO refactor rename delete_line_from_file?
-# remove a single match keyword from a match rule file
-delete_match_from_rule () {
+
+# remove a lines matching the specified string from the specified file
+delete_line_from_file () {
     sed -i "/^$1$/Id" $2
 }
 
@@ -203,14 +206,21 @@ get_rule_name () {
 }
 
 # get the rule path based on the rule name
-# TODO different paths for matches and replies
 get_rule_path () {
     RULENAME=$(get_rule_name "$1")
+
     if [ "$RULENAME" = "default replies" ]
     then
         echo "$MYPATH/$DEFAULT"
     else
-        echo "$MYPATH/match/$RULENAME"
+        # determine if this is for a match keyword or a reply
+        if [[ $1 =~ ^[-\+]?~ ]]
+        then
+            MYDIR=match
+        else
+            MYDIR=replies
+        fi
+        echo "$MYPATH/$MYDIR/$RULENAME"
     fi
 }
 
