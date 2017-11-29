@@ -10,7 +10,7 @@ USERNAME_REGEX='^[A-Za-z0-9_]{1,15}$'
 DEFAULT=replies.txt
 
 is_line_in_file () {
-    fgrep -i -x "$1" $2
+    fgrep --quiet -i -x "$1" $2
 }
 
 does_rule_match_tweet () {
@@ -133,7 +133,7 @@ is_valid_match_rule () {
 # append the specified line to the specified file 
 add_line_to_file () {
     # Add the line only if it is not already present
-    if $(grep -i "^$1$" "$2")
+    if ! $(grep --quiet -i "^$1$" "$2")
     then
         echo "$1" >> $2
     fi
@@ -146,7 +146,6 @@ process_match_rule () {
     then
         RULENAME=$(get_rule_name "$1")
         RULEPATH=$(get_rule_path "$1")
-
         # TODO rename this function? 
         process () {
             if [[ $1 =~ ^-~? ]]
