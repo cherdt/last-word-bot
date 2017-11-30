@@ -132,6 +132,8 @@ is_valid_match_rule () {
 
 # append the specified line to the specified file 
 add_line_to_file () {
+    # Make sure the file is present
+    touch "$2"
     # Add the line only if it is not already present
     if ! $(grep --quiet -i "^$1$" "$2")
     then
@@ -160,11 +162,16 @@ process_match_rule () {
     process_reply_string () {
         if [[ $1 =~ ^(.~|~) ]]
         then
-            # process match keywords one by one
-            for KEYWORD in $(get_reply_text "$1")
-            do
-                process "$1" "$KEYWORD" "$RULEPATH"
-            done
+            if is_valid_match_rule "$1"
+            then
+                # process match keywords one by one
+                for KEYWORD in $(get_reply_text "$1")
+                do
+                    process "$1" "$KEYWORD" "$RULEPATH"
+                done
+            else
+                send_syntax_error
+            fi
         else
             # process reply string
             REPLY_TEXT=$(get_reply_text "$1")

@@ -23,11 +23,17 @@ TESTNAME="is valid match rule"
 TESTVAL1="~10example sample template exhibit" 
 TESTVAL2="+~10example sample template exhibit"
 TESTVAL3="-~10example sample template exhibit"
-TESTVAL4="+~ wrong wrong wrong"
+TESTVAL4="~50nonexistent nothing nowhere"
+TESTVAL5="~70umberto umberto eco"
+TESTVAL6="+~ wrong wrong wrong"
+TESTVAL7="~ wrong wrong wrong"
 if is_valid_match_rule "$TESTVAL1" && \
    is_valid_match_rule "$TESTVAL2" && \
    is_valid_match_rule "$TESTVAL3" && \
-   ! is_valid_match_rule "$TESTVAL4"
+   is_valid_match_rule "$TESTVAL4" && \
+   is_valid_match_rule "$TESTVAL5" && \
+   ! is_valid_match_rule "$TESTVAL6" && \
+   ! is_valid_match_rule "$TESTVAL7"
 then
    echo "PASS: $TESTNAME"
 else
@@ -101,12 +107,22 @@ fi
 # test adding match to example rule
 TESTNAME="adding match to example rule"
 process_command "+~10example testing"
-if is_line_in_file "testing" $MYPATH/match/10example
+process_command "+~50nonexistent nothing nowhere"
+process_command "~70umberto umberto eco"
+if (is_line_in_file "testing" $MYPATH/match/10example) && \
+   (is_line_in_file "nothing" $MYPATH/match/50nonexistent) && \
+   (is_line_in_file "umberto" $MYPATH/match/70umberto)
+   
 then
     echo "PASS: $TESTNAME"
 else
     echo "FAIL: $TESTNAME"
 fi
+# cleanup
+rm $MYPATH/match/50nonexistent
+rm $MYPATH/match/70umberto
+
+
 
 # test deleting match from example rule
 TESTNAME="deleting match from example rule"

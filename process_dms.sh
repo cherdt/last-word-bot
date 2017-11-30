@@ -36,7 +36,7 @@ then
 fi
 
 # Process command
-process_command $TWEETTEXT
+process_command "$TWEETTEXT"
 
 exit 0
 
