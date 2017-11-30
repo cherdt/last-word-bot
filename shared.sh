@@ -14,7 +14,7 @@ is_line_in_file () {
 }
 
 does_rule_match_tweet () {
-    fgrep -i --word-regexp --file=$MYPATH/match/$1 <(echo $2)
+    fgrep --quiet -i --word-regexp --file=$MYPATH/match/$1 <(echo $2)
 }
 
 get_random_reply () {

@@ -18,6 +18,20 @@ is_authorized () {
 }
 
 
+# test match rule against tweet text
+TESTNAME="test match against tweet"
+TESTVAL1="demonstration"
+TESTVAL2="qwerty"
+TESTRULE="10example"
+if (does_rule_match_tweet $TESTRULE "$TESTVAL1") && \
+   (! does_rule_match_tweet $TESTRULE "$TESTVAL2")
+then
+    echo "PASS: $TESTNAME"
+else
+    echo "FAIL $TESTNAME"
+fi
+
+
 # test is valid match rule 
 TESTNAME="is valid match rule"
 TESTVAL1="~10example sample template exhibit" 
