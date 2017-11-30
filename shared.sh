@@ -181,25 +181,11 @@ delete_line_from_file () {
     sed -i "/^$1$/Id" $2
 }
 
-# remove match keywords for a specified rule
-delete_rule_match () {
-    echo "stub"
-}
-
-# returns true (0) if the specified reply already exists in the rule file
-is_existing_reply () {
-    echo "stub"
-}
 
 # does the command include a reply rule
 # TODO this is poorly named, rules can apply to matches and replies
 is_reply_rule_specified () {
     echo "$1" | grep --quiet "^[-+~]~\?[0-9a-zA-Z]"
-}
-
-# adds the specified reply string to a replies file
-add_reply_string () {
-    echo "stub"
 }
 
 # get the rule name from a command
@@ -235,11 +221,6 @@ get_rule_path () {
 # get the reply text from a command
 get_reply_text () {
     echo $1 | cut -d' ' -f 2-
-}
-
-# delete the specified reply string from a replies file
-delete_reply_string () {
-    echo "stub"
 }
 
 # send list of rule names
