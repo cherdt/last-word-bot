@@ -142,8 +142,8 @@ add_line_to_file () {
 
 # process match rules (add match strings to, remove match strings from, a rule)
 process_match_rule () {
-    if is_valid_match_rule "$1"
-    then
+#    if is_valid_match_rule "$1"
+#    then
         RULENAME=$(get_rule_name "$1")
         RULEPATH=$(get_rule_path "$1")
         # TODO rename this function? 
@@ -156,14 +156,23 @@ process_match_rule () {
             fi
         }
 
-        # TODO only match keywords get added like this
-        for KEYWORD in $(get_reply_text "$1")
-        do
-            process "$1" "$KEYWORD" "$RULEPATH"
-        done
-    else
-        send_syntax_error
-    fi
+        process_reply_string () {
+            if [[ $1 =~ ^(.~|~) ]]
+            then
+                for KEYWORD in $(get_reply_text "$1")
+                do
+                    process "$1" "$KEYWORD" "$RULEPATH"
+                done
+            else
+                REPLY_TEXT=$(get_reply_text "$1")
+                process "$1" "$REPLY_TEXT" "$RULEPATH"
+            fi
+        }
+
+        process_reply_string "$1"
+#    else
+#        send_syntax_error
+#    fi
 }
 
 
