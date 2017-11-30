@@ -6,13 +6,20 @@
 # grep wants to us to escape the curly braces, but not here
 USERNAME_REGEX='^[A-Za-z0-9_]{1,15}$'
 
+# DEFAULT replies
+DEFAULT=replies.txt
+
 is_line_in_file () {
-    fgrep -i -x "$1" $2
+    fgrep --quiet -i -x "$1" $2
+}
+
+does_rule_match_tweet () {
+    fgrep --quiet -i --word-regexp --file=$MYPATH/match/$1 <(echo $2)
 }
 
 get_random_reply () {
     # pick 1 reply at random
-    REPLY=$(shuf -n 1 $MYPATH/replies.txt)
+    REPLY=$(shuf -n 1 ${1-$DEFAULT})
 }
 
 is_enabled () {
@@ -57,6 +64,10 @@ send_social_confirmation () {
 
 send_unsocial_confirmation () {
     send_dm_reply "I am now in UNSOCIAL mode and will respond to tweets DM'd from authorized users only. Try SOCIAL to change modes"
+}
+
+send_syntax_error () {
+    send_dm_reply "Sorry, I didn't undertand that. Try HELP"
 }
 
 is_authorized () {
@@ -113,3 +124,183 @@ delete_authorized_user () {
         send_not_authorized
     fi
 }
+
+# test a command to see if it is a valid match rule
+is_valid_match_rule () {
+    echo $1 | grep --quiet "^[-+~]~\?[0-9a-zA-Z]\+[[:space:]]\+.\+"
+}
+
+# append the specified line to the specified file 
+add_line_to_file () {
+    # Make sure the file is present
+    touch "$2"
+    # Add the line only if it is not already present
+    if ! $(grep --quiet -i "^$1$" "$2")
+    then
+        echo "$1" >> $2
+    fi
+}
+
+
+# process match rules (add match strings to, remove match strings from, a rule)
+process_match_rule () {
+    RULENAME=$(get_rule_name "$1")
+    RULEPATH=$(get_rule_path "$1")
+    # TODO rename this function? 
+    # there aren't really local functions in BASH....
+    process () {
+        if [[ $1 =~ ^-~? ]]
+        then
+            delete_line_from_file "$2" "$3"
+        else
+            add_line_to_file "$2" "$3"
+        fi
+    }
+
+    # TODO rename this function
+    # there aren't really local functions in BASH....
+    process_reply_string () {
+        if [[ $1 =~ ^(.~|~) ]]
+        then
+            if is_valid_match_rule "$1"
+            then
+                # process match keywords one by one
+                for KEYWORD in $(get_reply_text "$1")
+                do
+                    process "$1" "$KEYWORD" "$RULEPATH"
+                done
+            else
+                send_syntax_error
+            fi
+        else
+            # process reply string
+            REPLY_TEXT=$(get_reply_text "$1")
+            process "$1" "$REPLY_TEXT" "$RULEPATH"
+        fi
+    }
+
+    process_reply_string "$1"
+}
+
+
+# remove a lines matching the specified string from the specified file
+delete_line_from_file () {
+    sed -i "/^$1$/Id" $2
+}
+
+
+# does the command include a reply rule
+# TODO this is poorly named, rules can apply to matches and replies
+is_reply_rule_specified () {
+    echo "$1" | grep --quiet "^[-+~]~\?[0-9a-zA-Z]"
+}
+
+# get the rule name from a command
+get_rule_name () {
+    if is_reply_rule_specified "$1"
+    then
+        # rules are preceded by +, -, ~, +~, or -~
+        echo "$1" | cut -d' ' -f 1 | sed 's/^[-\+~]~\?//'
+    else
+        echo "default replies"
+    fi
+}
+
+# get the rule path based on the rule name
+get_rule_path () {
+    RULENAME=$(get_rule_name "$1")
+
+    if [ "$RULENAME" = "default replies" ]
+    then
+        echo "$MYPATH/$DEFAULT"
+    else
+        # determine if this is for a match keyword or a reply
+        if [[ $1 =~ ^[-\+]?~ ]]
+        then
+            MYDIR=match
+        else
+            MYDIR=replies
+        fi
+        echo "$MYPATH/$MYDIR/$RULENAME"
+    fi
+}
+
+# get the reply text from a command
+get_reply_text () {
+    echo $1 | cut -d' ' -f 2-
+}
+
+# send list of rule names
+send_rules_list () {
+    send_dm_reply $(ls $MYPATH/match/)
+}
+
+# Process command
+process_command () {
+    if [[ $1 =~ ^(ON|ENABLE)$ && is_authorized ]]
+    then
+        rm $MYPATH/.disabled
+        send_on_confirmation
+    elif [[ $1 =~ ^(AUTH|\+@) && is_authorized ]]
+    then
+        add_authorized_users "$1"
+    elif [[ $1 =~ ^(DEAUTH|-@) && is_authorized ]]
+    then
+        delete_authorized_users "$1"
+    elif [[ $1 =~ ^(OFF|DISABLE)$ && is_authorized ]]
+    then
+        touch $MYPATH/.disabled
+        send_off_confirmation
+    elif [[ $1 =~ ^(SOCIAL|EXTROVERT|\[>|ALLOW)$ && is_authorized ]]
+    then
+        touch $MYPATH/.social
+        send_social_confirmation
+    elif [[ $1 =~ ^(UNSOCIAL|INTROVERT|\[<|DENY)$ && is_authorized ]]
+    then
+        rm $MYPATH/.social
+        send_unsocial_confirmation
+    # if DM begins with LIST then we are listing match rules
+    elif [[ $1 =~ ^LIST && is_authorized ]]
+    then
+        send_rules_list
+    # if DM begins with "+~, -~, or ~" then we are modifying a match rule 
+    elif [[ $1 =~ ^[-~\+]~? && is_authorized ]]
+    then
+        process_match_rule "$1"
+    # if DM begins with "+" then we are adding a reply string
+    elif [[ $1 =~ ^\+ && is_authorized ]]
+    then
+        add_reply_string "$1"
+    # if DM begins with "-" then we are deleting a reply string
+    elif [[ $1 =~ ^- && is_authorized ]]
+    then
+        delete_reply_string "$1"
+    elif [[ $1 =~ ^HELP ]]
+    then
+        send_help_reply
+    # check for URL, likely a shortened twitter link
+    elif [[ $1 =~ $URLREGEX ]]
+    then
+        if is_enabled
+        then
+            get_tweet_info "$1"
+    
+            # write and entry to the message log
+            logger "Replying to $TARGETUSER with a random reply"
+    
+            # get random reply
+            get_random_reply
+    
+            # Reply to the message referenced by the DM
+            twidge -c $MYPATH/$CONFIG update --inreplyto $TWEETID "@$TARGETUSER $REPLY"
+        else
+            send_dm_reply "I'm currently turned off. To turn me back on, an authorized user needs to send an ON command."
+        fi
+    
+    # otherwise, we didn't understand the command
+    else
+        logger "Failed to parse DM: $1"
+        send_syntax_error
+    fi
+}
+
