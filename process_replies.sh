@@ -24,10 +24,13 @@ then
     done
 
     # Reply to the tweet
-    twidge -c $CONFIG update --inreplyto $MESSAGEID "@$USERNAME $REPLY" 
+    if [ "$TESTVAL" != "" ]
+    then
+        twidge -c $CONFIG update --inreplyto $MESSAGEID "@$USERNAME $REPLY" 
     
-    # Write an entry to the message log
-    logger "sent reply to $USERNAME"
+        # Write an entry to the message log
+        logger "sent reply to $USERNAME"
+    fi
 fi
 
 exit 0
