@@ -142,37 +142,37 @@ add_line_to_file () {
 
 # process match rules (add match strings to, remove match strings from, a rule)
 process_match_rule () {
-#    if is_valid_match_rule "$1"
-#    then
-        RULENAME=$(get_rule_name "$1")
-        RULEPATH=$(get_rule_path "$1")
-        # TODO rename this function? 
-        process () {
-            if [[ $1 =~ ^-~? ]]
-            then
-                delete_line_from_file "$2" "$3"
-            else
-                add_line_to_file "$2" "$3"
-            fi
-        }
+    RULENAME=$(get_rule_name "$1")
+    RULEPATH=$(get_rule_path "$1")
+    # TODO rename this function? 
+    # there aren't really local functions in BASH....
+    process () {
+        if [[ $1 =~ ^-~? ]]
+        then
+            delete_line_from_file "$2" "$3"
+        else
+            add_line_to_file "$2" "$3"
+        fi
+    }
 
-        process_reply_string () {
-            if [[ $1 =~ ^(.~|~) ]]
-            then
-                for KEYWORD in $(get_reply_text "$1")
-                do
-                    process "$1" "$KEYWORD" "$RULEPATH"
-                done
-            else
-                REPLY_TEXT=$(get_reply_text "$1")
-                process "$1" "$REPLY_TEXT" "$RULEPATH"
-            fi
-        }
+    # TODO rename this function
+    # there aren't really local functions in BASH....
+    process_reply_string () {
+        if [[ $1 =~ ^(.~|~) ]]
+        then
+            # process match keywords one by one
+            for KEYWORD in $(get_reply_text "$1")
+            do
+                process "$1" "$KEYWORD" "$RULEPATH"
+            done
+        else
+            # process reply string
+            REPLY_TEXT=$(get_reply_text "$1")
+            process "$1" "$REPLY_TEXT" "$RULEPATH"
+        fi
+    }
 
-        process_reply_string "$1"
-#    else
-#        send_syntax_error
-#    fi
+    process_reply_string "$1"
 }
 
 
