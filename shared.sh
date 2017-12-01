@@ -39,7 +39,7 @@ is_social () {
 }
 
 send_help_reply() {
-    send_dm_reply "Commands: [ON|OFF|SOCIAL|UNSOCIAL|AUTH user|DEAUTH user|+ text|- text|URL]. https://github.com/cherdt/last-word-bot"
+    send_dm_reply "(ON|OFF|SOCIAL|UNSOCIAL|AUTH user|DEAUTH user|+ text|- text|tweet URL|SCORE|TOP|HELP). For more commands see link https://github.com/cherdt/last-word-bot"
 }
 
 send_not_authorized() {
@@ -64,6 +64,16 @@ send_social_confirmation () {
 
 send_unsocial_confirmation () {
     send_dm_reply "I am now in UNSOCIAL mode and will respond to tweets DM'd from authorized users only. Try SOCIAL to change modes"
+}
+
+send_total_score () {
+    TOTAL_SCORE=$(awk '{ totalscore += $2 } END { print totalscore }' score)
+    send_dm_reply "Total score: $TOTAL_SCORE"
+}
+
+send_most_replies () {
+    MOST_REPLIES=$(cat $MYPATH/score | sort --reverse --numeric-sort --key=2 score | head -n 1)
+    send_dm_reply "Most replies: $MOST_REPLIES"
 }
 
 send_syntax_error () {
@@ -123,6 +133,12 @@ delete_authorized_user () {
     else
         send_not_authorized
     fi
+}
+
+# update score file
+update_score () {
+    # find the user[[:space:]]score and replace with user[[:space:]]score++
+    sed -i -r 's/^('"$1"') ([0-9]+)/echo "\1 $((\2+1))"/e' $MYPATH/score
 }
 
 # test a command to see if it is a valid match rule
@@ -275,6 +291,12 @@ process_command () {
     elif [[ $1 =~ ^- && is_authorized ]]
     then
         delete_reply_string "$1"
+    elif [[ $1 =~ ^SCORE && is_authorized ]]
+    then
+        send_total_score
+    elif [[ $1 =~ ^TOP && is_authorized ]]
+    then
+        send_most_replies
     elif [[ $1 =~ ^HELP ]]
     then
         send_help_reply
