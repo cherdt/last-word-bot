@@ -19,7 +19,7 @@ does_rule_match_tweet () {
 
 get_random_reply () {
     # pick 1 reply at random
-    REPLY=$(shuf -n 1 ${1-$DEFAULT})
+    REPLY=$(shuf -n 1 $MYPATH/${1-$DEFAULT})
 }
 
 is_enabled () {
