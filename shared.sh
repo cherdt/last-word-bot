@@ -125,6 +125,12 @@ delete_authorized_user () {
     fi
 }
 
+# update score file
+update_score () {
+    # find the user[[:space:]]score and replace with user[[:space:]]score++
+    sed -i -r 's/^('"$1"') ([0-9]+)/echo "\1 $((\2+1))"/e' $MYPATH/score
+}
+
 # test a command to see if it is a valid match rule
 is_valid_match_rule () {
     echo $1 | grep --quiet "^[-+~]~\?[0-9a-zA-Z]\+[[:space:]]\+.\+"
