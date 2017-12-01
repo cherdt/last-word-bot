@@ -23,6 +23,8 @@ Setup
 
 * You'll need a twitter account. You can use a personal account, but I'd create a separate one if I were you.
 * Clone this repo
+  - Update MYPATH to use the full path in `follow_users.sh`, `process_dms.sh`, and `process_replies.sh`
+  - Update the paths in `CRONTAB.md` to use the full path
 * In the repo, run `twidge setup`
 * Open the twitter URL when prompted
 * Enter the code at the twidge prompt
