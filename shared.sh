@@ -66,6 +66,16 @@ send_unsocial_confirmation () {
     send_dm_reply "I am now in UNSOCIAL mode and will respond to tweets DM'd from authorized users only. Try SOCIAL to change modes"
 }
 
+send_total_score () {
+    TOTAL_SCORE=$(awk '{ totalscore += $2 } END { print totalscore }' score)
+    send_dm_reply "Total score: $TOTAL_SCORE"
+}
+
+send_most_replies () {
+    MOST_REPLIES=$(cat $MYPATH/score | sort --reverse --numeric-sort --key=2 score | head -n 1)
+    send_dm_reply "Most replies: $MOST_REPLIES"
+}
+
 send_syntax_error () {
     send_dm_reply "Sorry, I didn't undertand that. Try HELP"
 }
@@ -281,6 +291,12 @@ process_command () {
     elif [[ $1 =~ ^- && is_authorized ]]
     then
         delete_reply_string "$1"
+    elif [[ $1 =~ ^SCORE && is_authorized ]]
+    then
+        send_total_score
+    elif [[ $1 =~ ^TOP && is_authorized ]]
+    then
+        send_most_replies
     elif [[ $1 =~ ^HELP ]]
     then
         send_help_reply
