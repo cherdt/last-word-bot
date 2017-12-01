@@ -28,6 +28,8 @@ Setup
 * Enter the code at the twidge prompt
 * Test it: `twidge update "I am a robot!"`
 * Add your canned replies to `replies.txt`. They will be selected at (pseudo)random.
+* Add optional match rules to `match/rulename`. (Recommended: add a numeric 2-digit prefix to the rulename, so that it is easier to control the order of processing. E.g. `10example` will be processed before `20sample`.)
+* Add optional match rule replies to `replies\rulename`. They will be selected at (pseudo)random when an incoming tweet/reply contains a word in the corresponding match rule.
 * Add cron entries as described in `CRONTAB.md`
 * Optionally, add the bot's username and/or your personal twitter username to `authorized_users`
 
@@ -38,14 +40,24 @@ Authorized users can interact with a configured bot via twitter direct messages 
 
 * `(ON|ENABLE)` - re-enables the bot after it's been in an OFF state.
 * `(OFF|DISABLE)` - disables the bot. You can still add and remove replies while the bot is in an OFF state.
-* `(SOCIAL|EXTROVERT|ALLOW|[>)` - puts the bot in SOCIAL mode, in which it will reply to tweets sent via Direct Message by any follower.
-* `(UNSOCIAL|INTROVERT|DENY|[<)` - puts the bot in the default UNSOCIAL mode, in which it will reply to tweets sent via Direct Message by authorized users only.
+* `(SOCIAL|EXTROVERT|ALLOW|[>)` - puts the bot in SOCIAL mode, in which it will reply to tweets forwarded via Direct Message by *any*  follower.
+* `(UNSOCIAL|INTROVERT|DENY|[<)` - puts the bot in the default UNSOCIAL mode, in which it will reply to tweets forwarded via Direct Message by authorized users only.
 * `(AUTH|+@) username1 username2 ...` - add authorized users.
 * `(DEAUTH|-@) username1 username2 ...` - remove authorized users.
-* `+reply text` - adds reply text to the list of random replies.
-* `-reply text` - removes reply text from the list of random replies. Note that the text must be an exact match!
+* `+~rulename keyword {keyword}` - adds keywords to a match rule. (Keywords match *any* word in a tweet -- no multi-word phrases at this time.)
+* `-~rulename keyword {keyword}` - removes keywords from a match rule.
+* `+[rulename] reply text` - adds reply text to the list of random replies for `[rulename]`, or to the default replies if `[rulename]` is specified.
+* `-[rulename] reply text` - removes reply text from the list of random replies for `[rulename]`, or from the default replies if `[rulename]` is not specified. Note that the text must be an exact match!
 * `url` - the bot will try to follow the t.co link and add a random reply.
+* `SCORE` - lists the total number of (public) replies to your bot.
+* `TOP` - lists the user with the most replies to your bot, with the number of replies.
 * `HELP` - lists commands, links to this page.
+
+Limitations
+-----------
+
+* Twidge still thinks twitter is limited to 140 characters. This limits the length of your replies.
+* Keyword match rules match on single words.
 
 Disclaimers
 -----------

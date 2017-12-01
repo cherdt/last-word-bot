@@ -39,7 +39,7 @@ is_social () {
 }
 
 send_help_reply() {
-    send_dm_reply "Commands: [ON|OFF|SOCIAL|UNSOCIAL|AUTH user|DEAUTH user|+ text|- text|URL]. https://github.com/cherdt/last-word-bot"
+    send_dm_reply "(ON|OFF|SOCIAL|UNSOCIAL|AUTH user|DEAUTH user|+ text|- text|tweet URL|SCORE|TOP|HELP). For more commands see link https://github.com/cherdt/last-word-bot"
 }
 
 send_not_authorized() {
