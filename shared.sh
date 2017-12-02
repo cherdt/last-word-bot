@@ -137,8 +137,15 @@ delete_authorized_user () {
 
 # update score file
 update_score () {
-    # find the user[[:space:]]score and replace with user[[:space:]]score++
-    sed -i -r 's/^('"$1"') ([0-9]+)/echo "\1 $((\2+1))"/e' $MYPATH/score
+    # make sure the score file exists
+    touch -a $MYPATH/score
+    if $(grep "$1" $MYPATH/score)
+    then
+        # find the user[[:space:]]score and replace with user[[:space:]]score++
+        sed -i -r 's/^('"$1"') ([0-9]+)/echo "\1 $((\2+1))"/e' $MYPATH/score
+    else
+        echo "$1 1" >> $MYPATH/score
+    fi
 }
 
 # test a command to see if it is a valid match rule

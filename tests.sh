@@ -190,6 +190,17 @@ else
     echo "FAIL: $TESTNAME"
 fi
 
+# test updating score file
+TESTNAME="updating score file"
+update_score "sample_username"
+if is_line_in_file "sample_username 1" $MYPATH/score
+then
+    echo "PASS: $TESTNAME"
+else
+    echo "FAIL: $TESTNAME"
+fi
+sed -i '/sample_username 1/d' $MYPATH/score
+
 # test listing rules
 TESTNAME="list match rules"
 process_command "LIST RULES"
