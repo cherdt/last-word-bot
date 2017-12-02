@@ -139,7 +139,7 @@ delete_authorized_user () {
 update_score () {
     # make sure the score file exists
     touch -a $MYPATH/score
-    if $(grep "$1" $MYPATH/score)
+    if grep --quiet "$1" $MYPATH/score
     then
         # find the user[[:space:]]score and replace with user[[:space:]]score++
         sed -i -r 's/^('"$1"') ([0-9]+)/echo "\1 $((\2+1))"/e' $MYPATH/score

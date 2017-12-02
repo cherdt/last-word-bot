@@ -192,14 +192,15 @@ fi
 
 # test updating score file
 TESTNAME="updating score file"
-update_score "sample_username"
-if is_line_in_file "sample_username 1" $MYPATH/score
+update_score "example_username"
+update_score "example_username"
+if is_line_in_file "example_username 2" $MYPATH/score
 then
     echo "PASS: $TESTNAME"
 else
     echo "FAIL: $TESTNAME"
 fi
-sed -i '/sample_username 1/d' $MYPATH/score
+sed -i '/^example_username/d' $MYPATH/score
 
 # test listing rules
 TESTNAME="list match rules"
