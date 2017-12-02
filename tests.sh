@@ -121,9 +121,11 @@ fi
 # test adding match to example rule
 TESTNAME="adding match to example rule"
 process_command "+~10example testing"
+process_command '+~10example "one two" three'
 process_command "+~50nonexistent nothing nowhere"
 process_command "~70umberto umberto eco"
 if (is_line_in_file "testing" $MYPATH/match/10example) && \
+   (is_line_in_file "one two" $MYPATH/match/10example) && \
    (is_line_in_file "nothing" $MYPATH/match/50nonexistent) && \
    (is_line_in_file "umberto" $MYPATH/match/70umberto)
    
@@ -135,7 +137,6 @@ fi
 # cleanup
 rm $MYPATH/match/50nonexistent
 rm $MYPATH/match/70umberto
-
 
 
 # test deleting match from example rule
