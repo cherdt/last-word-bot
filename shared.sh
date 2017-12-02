@@ -9,8 +9,77 @@ USERNAME_REGEX='^[A-Za-z0-9_]{1,15}$'
 # DEFAULT replies
 DEFAULT=replies.txt
 
+
+# You can modify the text of specific replies in the send_* functions below
+
+MSG_NOT_AUTHORIZED="I'm sorry Dave, I'm afraid I can't do that."
+
+MSG_OFF_WARNING="I'm currently turned off. To turn me back on, an authorized user needs to send an ON command."
+
+MSG_OFF_CONFIRMATION="I am now OFF. An authorized user can turn me on by sending the ON command"
+
+MSG_ON_CONFIRMATION="I am now ON. An authorized user can turn me off by sending the OFF command"
+
+MSG_SOCIAL_CONFIRMATION="I am now in SOCIAL mode and will respond to tweets DM'd from any follower. Try UNSOCIAL to change modes"
+
+MSG_UNSOCIAL_CONFIRMATION="I am now in UNSOCIAL mode and will respond to tweets DM'd from authorized users only. Try SOCIAL to change modes"
+
+MSG_SYNTAX_ERROR="Sorry, I didn't undertand that. Try HELP"
+
+
+send_dm_reply () {
+    send_dm "$SENDER" "$1"
+}
+
+send_help_reply() {
+    send_dm_reply "(ON|OFF|SOCIAL|UNSOCIAL|AUTH user|DEAUTH user|+ text|- text|tweet URL|SCORE|TOP|HELP). For more commands see link https://github.com/cherdt/last-word-bot"
+}
+
+send_not_authorized() {
+    send_dm_reply "$MSG_NOT_AUTHORIZED"
+}
+
+send_off_confirmation () {
+    send_dm_reply "$MSG_OFF_CONFIRMATION"
+}
+
+send_on_confirmation () {
+    send_dm_reply "$MSG_ON_CONFIRMATION"
+}
+
+send_social_confirmation () {
+    send_dm_reply "$MSG_SOCIAL_CONFIRMATION"
+}
+
+send_unsocial_confirmation () {
+    send_dm_reply "$MSG_UNSOCIAL_CONFIRMATION"
+}
+
+send_total_score () {
+    TOTAL_SCORE=$(awk '{ totalscore += $2 } END { print totalscore }' score)
+    send_dm_reply "Total score: $TOTAL_SCORE"
+}
+
+send_most_replies () {
+    MOST_REPLIES=$(cat $MYPATH/score | sort --reverse --numeric-sort --key=2 score | head -n 1)
+    send_dm_reply "Most replies: $MOST_REPLIES"
+}
+
+send_syntax_error () {
+    send_dm_reply "$MSG_SYNTAX_ERROR"
+}
+
+send_dm () {
+    local RECIPIENT="$1"
+    local RESPONSE="$2"
+    twidge -c $MYPATH/$CONFIG dmsend $RECIPIENT "$RESPONSE"
+}
+
+
+# the following functions probably don't have anything you can customize
+
 is_line_in_file () {
-    fgrep --quiet -i -x "$1" $2
+    fgrep --quiet -i --line-regexp "$1" $2
 }
 
 does_rule_match_tweet () {
@@ -25,7 +94,7 @@ get_random_reply () {
 is_enabled () {
     if [ -e $MYPATH/.disabled ]
     then
-	return 1
+        return 1
     fi
     return 0
 }
@@ -36,48 +105,6 @@ is_social () {
         return 0
     fi
     return 1
-}
-
-send_help_reply() {
-    send_dm_reply "(ON|OFF|SOCIAL|UNSOCIAL|AUTH user|DEAUTH user|+ text|- text|tweet URL|SCORE|TOP|HELP). For more commands see link https://github.com/cherdt/last-word-bot"
-}
-
-send_not_authorized() {
-    send_dm_reply "I'm sorry Dave, I'm afraid I can't do that."
-}
-
-send_dm_reply () {
-    twidge -c $MYPATH/$CONFIG dmsend $SENDER "$1"
-}
-
-send_off_confirmation () {
-    send_dm_reply "I am now OFF. An authorized user can turn me on by sending the ON command"
-}
-
-send_on_confirmation () {
-    send_dm_reply "I am now ON. An authorized user can turn me off by sending the OFF command"
-}
-
-send_social_confirmation () {
-    send_dm_reply "I am now in SOCIAL mode and will respond to tweets DM'd from any follower. Try UNSOCIAL to change modes"
-}
-
-send_unsocial_confirmation () {
-    send_dm_reply "I am now in UNSOCIAL mode and will respond to tweets DM'd from authorized users only. Try SOCIAL to change modes"
-}
-
-send_total_score () {
-    TOTAL_SCORE=$(awk '{ totalscore += $2 } END { print totalscore }' score)
-    send_dm_reply "Total score: $TOTAL_SCORE"
-}
-
-send_most_replies () {
-    MOST_REPLIES=$(cat $MYPATH/score | sort --reverse --numeric-sort --key=2 score | head -n 1)
-    send_dm_reply "Most replies: $MOST_REPLIES"
-}
-
-send_syntax_error () {
-    send_dm_reply "Sorry, I didn't undertand that. Try HELP"
 }
 
 is_authorized () {
@@ -233,14 +260,13 @@ delete_line_from_file () {
 
 
 # does the command include a reply rule
-# TODO this is poorly named, rules can apply to matches and replies
-is_reply_rule_specified () {
+is_rule_specified_in_command () {
     echo "$1" | grep --quiet "^[-+~]~\?[0-9a-zA-Z]"
 }
 
 # get the rule name from a command
 get_rule_name () {
-    if is_reply_rule_specified "$1"
+    if is_rule_specified_in_command "$1"
     then
         # rules are preceded by +, -, ~, +~, or -~
         echo "$1" | cut -d' ' -f 1 | sed 's/^[-\+~]~\?//'
@@ -343,7 +369,7 @@ process_command () {
             # Reply to the message referenced by the DM
             twidge -c $MYPATH/$CONFIG update --inreplyto $TWEETID "@$TARGETUSER $REPLY"
         else
-            send_dm_reply "I'm currently turned off. To turn me back on, an authorized user needs to send an ON command."
+            send_dm_reply "$MSG_OFF_WARNING"
         fi
     
     # otherwise, we didn't understand the command

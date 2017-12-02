@@ -7,9 +7,11 @@ CONFIG=$MYPATH/.twidgerc
 
 source shared.sh
 
-# override DM replies for testing
-send_dm_reply () {
-    echo "[TEST] send_dm_reply: $1"
+# override direct messages for testing
+send_dm () {
+    local RECIPIENT="$1"
+    local RESPONSE="$2"
+    echo "[TEST] send_dm to $RECIPIENT: $RESPONSE"
 }
 
 # override is_authorized while testing 
@@ -64,13 +66,13 @@ TESTVAL4="-sample Yes here is a reply rule"
 TESTVAL5="~sample Yes here is a match rule"
 TESTVAL6="+~sample Yes here is a match rule"
 TESTVAL7="-~sample Yes here is a match rule"
-if ! is_reply_rule_specified $TESTVAL1 && \
-   ! is_reply_rule_specified $TESTVAL2 && \
-   is_reply_rule_specified $TESTVAL3 && \
-   is_reply_rule_specified $TESTVAL4 && \
-   is_reply_rule_specified $TESTVAL5 && \
-   is_reply_rule_specified $TESTVAL6 && \
-   is_reply_rule_specified $TESTVAL7
+if ! is_rule_specified_in_command $TESTVAL1 && \
+   ! is_rule_specified_in_command $TESTVAL2 && \
+   is_rule_specified_in_command $TESTVAL3 && \
+   is_rule_specified_in_command $TESTVAL4 && \
+   is_rule_specified_in_command $TESTVAL5 && \
+   is_rule_specified_in_command $TESTVAL6 && \
+   is_rule_specified_in_command $TESTVAL7
 then
    echo "PASS: $TESTNAME"
 else
