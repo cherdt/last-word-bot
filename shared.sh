@@ -172,11 +172,15 @@ process_match_rule () {
     # TODO rename this function? 
     # there aren't really local functions in BASH....
     process () {
+
+        # strip leading whitespace
+        local PHRASE=$(echo "$2" | sed -r 's/^[[:space:]]+//')
+        PHRASE=$(echo "$PHRASE" | sed 's/\"//g')
         if [[ $1 =~ ^-~? ]]
         then
-            delete_line_from_file "$2" "$3"
+            delete_line_from_file "$PHRASE" "$3"
         else
-            add_line_to_file "$2" "$3"
+            add_line_to_file "$PHRASE" "$3"
         fi
     }
 
@@ -188,9 +192,25 @@ process_match_rule () {
             if is_valid_match_rule "$1"
             then
                 # process match keywords one by one
+                IS_KEYPHRASE=0
+                KEYPHRASE=''
                 for KEYWORD in $(get_reply_text "$1")
                 do
-                    process "$1" "$KEYWORD" "$RULEPATH"
+                    if [[ $KEYWORD =~ ^\" ]]
+                    then
+                        IS_KEYPHRASE=1
+                    elif [[ $KEYWORD =~ \"$ ]]
+                    then
+                        IS_KEYPHRASE=0
+                    fi
+                    
+                    KEYPHRASE="$KEYPHRASE $KEYWORD"
+
+                    if [[ $IS_KEYPHRASE -eq 0 ]]
+                    then
+                        process "$1" "$KEYPHRASE" "$RULEPATH"
+                        KEYPHRASE=''
+                    fi
                 done
             else
                 send_syntax_error
