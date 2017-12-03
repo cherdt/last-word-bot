@@ -25,7 +25,7 @@ Setup
 * Clone this repo
   - Update MYPATH to use the full path in `follow_users.sh`, `process_dms.sh`, and `process_replies.sh`
   - Update the paths in `CRONTAB.md` to use the full path
-* In the repo, run `twidge setup`
+* In the repo, run `twidge -c ./.twidgerc setup`
 * Open the twitter URL when prompted
 * Enter the code at the twidge prompt
 * Test it: `twidge update "I am a robot!"`
