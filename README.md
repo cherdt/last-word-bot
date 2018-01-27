@@ -35,6 +35,7 @@ Setup
 * Add cron entries as described in `CRONTAB.md`
 * Optionally, add the bot's username and/or your personal twitter username to `authorized_users`
 
+
 Commands
 --------
 
@@ -55,8 +56,11 @@ Authorized users can interact with a configured bot via twitter direct messages 
 * `TOP` - lists the user with the most replies to your bot, with the number of replies.
 * `HELP` - lists commands, links to this page.
 
+
 Other Features
 --------------
+
+### Madlibs-style replies
 
 You can include madlibs-style word/phrase substitutions in replies, which pull from lists in the `madlibs` directory. For example, in the following reply:
 
@@ -64,11 +68,33 @@ You can include madlibs-style word/phrase substitutions in replies, which pull f
 
 `<example>` could be replaced by example, demonstration, illustration, or any other term in the `madlibs/example` file. The substitution lists can only be created and updated on the backend at this time, and cannot be updated via the twitter interface.
 
+
+### Search for, and reply to, tweets
+
+**WARNING** this is a little complicated if you haven't done it before. It's a little complicated even if you have done it before.
+
+You'll need an API token and an API key. You'll need to use a twitter account with an attached phone number (it doesn't have to be your bot account). Go to https://apps.twitter.com and create a new app. The values below are just suggestions, you can use anything you want.
+
+* Name: twitter-api-search
+* Description: retrieve twitter search results via the API
+* Website: https://github.com/cherdt/last-word-bot
+* Callback URL: [leave blank]
+
+It should provide you a Consumer Key (API Key) and Consumer Secret (API Secret). Using these 2 values you can create an Access Token:
+
+`echo -n $API_KEY:$API_SECRET | base64 -w 0`
+
+Assign the resulting gibberish text to the `TOKEN` variable at the top of `reply_to_recent_tweet.sh`
+
+In the example, the search looks for tweets matching `KEYWORD`, which is a random selection of either 'myfirsttweet' or bored'. You can change these values as you like.
+
+
 Limitations
 -----------
 
 * Twidge still thinks twitter is limited to 140 characters. This limits the length of your replies.
 * Keyword match rules match on single words.
+
 
 Disclaimers
 -----------
