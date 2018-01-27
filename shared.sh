@@ -86,9 +86,28 @@ does_rule_match_tweet () {
     fgrep --quiet -i --word-regexp --file=$MYPATH/match/$1 <(echo $2)
 }
 
+madlibs () {
+    # Repeat until no match terms are found
+    while [[ $REPLY =~ \<[^\>]+\> ]]
+    do
+        # Select just the text portion of the <match>
+        local TERM=$(echo ${BASH_REMATCH[0]} | tr -d '<>')
+        # Make sure the path exists
+        if [ ! -e $MYPATH/madlibs/$TERM ]
+        then
+            exit 1
+        fi
+        # Select a random match
+        local RANDOM=$(shuf -n1 $MYPATH/madlibs/$TERM)
+        # Replace the match term with the random match
+        REPLY=$(echo $REPLY | sed "s/${BASH_REMATCH[0]}/$RANDOM/")
+    done
+}
+
 get_random_reply () {
     # pick 1 reply at random
     REPLY=$(shuf -n 1 $MYPATH/${1-$DEFAULT})
+    madlibs
 }
 
 is_enabled () {
