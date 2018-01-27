@@ -1,3 +1,4 @@
 1 is the loneliest number.
 Only 2 things in life are certain: Death and Taxes.
 3 people can keep a secret if 2 of them are dead.
+This is an <example> of a madlibs-style reply.

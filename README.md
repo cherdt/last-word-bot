@@ -55,6 +55,15 @@ Authorized users can interact with a configured bot via twitter direct messages 
 * `TOP` - lists the user with the most replies to your bot, with the number of replies.
 * `HELP` - lists commands, links to this page.
 
+Other Features
+--------------
+
+You can include madlibs-style word/phrase substitutions in replies, which pull from lists in the `madlibs` directory. For example, in the following reply:
+
+`This is an <example> of a madlibs-style reply.`
+
+`<example>` could be replaced by example, demonstration, illustration, or any other term in the `madlibs/example` file. The substitution lists can only be created and updated on the backend at this time, and cannot be updated via the twitter interface.
+
 Limitations
 -----------
 
