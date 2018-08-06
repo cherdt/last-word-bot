@@ -11,7 +11,7 @@ MESSAGEID=$1
 USERNAME=$2
 TWEET=$4
 
-if is_enabled
+if is_enabled && is_coin_flip_heads
 then
     get_random_reply
     for MATCHRULE in $(ls $MYPATH/match)

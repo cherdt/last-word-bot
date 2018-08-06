@@ -78,6 +78,14 @@ send_dm () {
 
 # the following functions probably don't have anything you can customize
 
+is_coin_flip_heads () {
+    if [ $(shuf -i 0-99 -n1) -gt 50 ]
+    then
+        return 0
+    fi
+    return 1
+}
+
 is_line_in_file () {
     fgrep --quiet -i --line-regexp "$1" $2
 }
